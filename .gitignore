@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+#self-added
+crag_task_3_dev_v4/*
+trash.py
+
 # Distribution / packaging
 .Python
 build/
