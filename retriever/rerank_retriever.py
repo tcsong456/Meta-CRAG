@@ -1,7 +1,7 @@
 import ray
-import logging
 import trafilatura
 import html as html_lib
+from utils import logger
 from bs4 import BeautifulSoup
 from llama_index.core import VectorStoreIndex
 from llama_index.retrievers.bm25 import BM25Retriever
@@ -9,12 +9,6 @@ from llama_index.core.schema import Document, QueryBundle
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.hugging_face import HuggingFaceEmbedding
 from llama_index.core.postprocessor import SentenceTransformerRerank
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 def html2text(html):
     html = str(html)
@@ -131,17 +125,4 @@ class Retriever:
             top_candidates = [node.get_text().strip() for node in nodes]
         
         return top_candidates
-        
-        
-
-#%%
-# import json
-# with open('crag_task_3_dev_v4/crag_task_3_dev_v4_0.jsonl') as f:
-#     for line in f:
-#         data = json.loads(line)
-#         print(len(data['search_results']))
-        
-# len(data['search_results'])
-#%%
-
 
