@@ -9,6 +9,7 @@ __pycache__/
 #self-added
 crag_task_3_dev_v4/*
 trash.py
+models/*
 
 # Distribution / packaging
 .Python

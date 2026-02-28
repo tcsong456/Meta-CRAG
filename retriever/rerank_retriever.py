@@ -7,8 +7,13 @@ from llama_index.core import VectorStoreIndex
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core.schema import Document, QueryBundle
 from llama_index.core.node_parser import SentenceSplitter
-from llama_index.embeddings.hugging_face import HuggingFaceEmbedding
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.postprocessor import SentenceTransformerRerank
+import nltk
+from nltk.corpus import stopwords
+nltk.download("stopwords")
+nltk.download("punkt")
+_ = stopwords.words("english")
 
 def html2text(html):
     html = str(html)
@@ -55,7 +60,7 @@ class Retriever:
         self.top_n = top_n
         self.top_preliminary = top_preliminary
         self.embdding_model = HuggingFaceEmbedding(
-            moedel_name=embedding_model_path,
+            model_name=embedding_model_path,
             device=device
         )
         if rerank:
@@ -80,7 +85,7 @@ class Retriever:
             page_html = result.get('page_result', '')
             page_snippet = result.get('page_snippet', '')
             snippets.append(html_lib.unescape(page_snippet))
-            task_refs.append(extract_text_task(page_html))
+            task_refs.append(extract_text_task.remote(page_html))
         
         ready, not_ready = ray.wait(task_refs, num_returns=len(task_refs), timeout=self.timeout)
         for ref in not_ready:
@@ -107,11 +112,11 @@ class Retriever:
                 self.top_preliminary = len(nodes)
             bm25_retriever = BM25Retriever.from_defaults(nodes=nodes, similarity_top_k=self.top_preliminary)
             nodes = bm25_retriever.retrieve(query)
-            documents = [Document(node.get_text().strip()) for node in nodes]
+            documents = [Document(text=node.get_text().strip()) for node in nodes]
         
         node_parser = SentenceSplitter(chunk_size=256, chunk_overlap=20)
         nodes = node_parser.get_nodes_from_documents(documents)
-        index = VectorStoreIndex(nodes, self.embdding_model)
+        index = VectorStoreIndex(nodes, embed_model=self.embdding_model)
         retriever = index.as_retriever(similarity_top_k=self.top_k)
         nodes = retriever.retrieve(query)
         
