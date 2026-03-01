@@ -1,6 +1,8 @@
 import os
 import json
 import logging
+import numpy as np
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,4 +33,24 @@ def load_data(path, batch_size):
             
             if batch['query']:
                 yield batch
+
+def make_indices_split(n, n_splits=3, test_size=0.1, seed=8719, pick_fold=0):
+    indices = np.arange(n)
+    y_indices = np.random.randint(0, 2, (n,))
+    skf = StratifiedKFold(n_splits=5, random_state=seed, shuffle=True)
+    for i, (train_indices, test_indices) in enumerate(skf.split(indices, y_indices)):
+        val_indices, test_indices = train_test_split(test_indices, test_size=0.5, random_state=42)
+        if i == pick_fold:
+            return train_indices, val_indices, test_indices
+    
+    return [], [], []
+    
+
+#%%
+train_indices, val_indices, test_indices = make_indices_split(2500, n_splits=5, pick_fold=2)
+
+
+
+#%%
+len()
                     
