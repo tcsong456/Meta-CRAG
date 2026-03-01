@@ -1,7 +1,9 @@
 import os
 import json
+import pickle
 import logging
 import numpy as np
+from tqdm import tqdm
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
 logging.basicConfig(
@@ -10,7 +12,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_data(path, batch_size):
+def load_data(path):
+    data = {'query': [], 'domain': [], 'static_or_dynamic': [], 'query_time': [],
+            'interaction_id': [], 'search_results': []}
+    file_paths = os.listdir(path)
+    for i, file_path in enumerate(file_paths):
+        with open(f'{path}/{file_path}', 'r') as f:
+            total_files = 300 if i < 9 else 6
+            tqf = tqdm(f, total=total_files, desc=f'downloading files from file number: {i}')
+            for line in tqf:
+                file = json.loads(line)
+                for key in data:
+                    data[key].append(file[key])
+    return data
+
+def batch_load_data(path, batch_size):
     def initilize_batch():
         return {'interaction_id': [], 'query':[], 'search_results':[], 'query_time':[], 'answer': [],
                 'domain': [], 'static_or_dynamic': []}
@@ -47,10 +63,4 @@ def make_indices_split(n, n_splits=3, test_size=0.1, seed=8719, pick_fold=0):
     
 
 #%%
-train_indices, val_indices, test_indices = make_indices_split(2500, n_splits=5, pick_fold=2)
-
-
-
-#%%
-len()
                     

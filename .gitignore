@@ -10,6 +10,10 @@ __pycache__/
 crag_task_3_dev_v4/*
 trash.py
 models/*
+artifacts/
+checkpoints/
+data/
+best_alpha.pkl
 
 # Distribution / packaging
 .Python
