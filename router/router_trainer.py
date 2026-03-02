@@ -122,7 +122,7 @@ class BGE3ForClassification(nn.Module):
         counts = mask.sum(dim=1).clamp(1e-9)
         return summed / counts
     
-    def forward(self, input_ids, attention_mask, return_embedding=False):
+    def forward(self, input_ids, attention_mask):
         out = self.encoder(
             input_ids=input_ids,
             attention_mask=attention_mask
@@ -130,8 +130,6 @@ class BGE3ForClassification(nn.Module):
         pooled = self._mean_pool(out.last_hidden_state, attention_mask)
         h = self.compressor(pooled)
         logits = self.classifier(h)
-        if return_embedding:
-            return logits, h
         return logits
 
 class Trainer:
@@ -291,8 +289,7 @@ class Trainer:
                     with autocast(enabled=True):
                         logits, h = self.model(
                             input_ids= batch['input_ids'],
-                            attention_mask=batch['attn_mask'],
-                            return_embedding=True
+                            attention_mask=batch['attn_mask']
                         )
                         probs = torch.softmax(logits, dim=-1)
                         val_loss = self.loss_fn(probs, y)
@@ -361,8 +358,7 @@ class Trainer:
             with autocast(enabled=True):
                 logits, h = self.model(
                     input_ids=batch['input_ids'],
-                    attention_mask=batch['attn_mask'],
-                    return_embedding=True
+                    attention_mask=batch['attn_mask']
                 )
                 
             pred_label = logits.argmax(dim=-1)

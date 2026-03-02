@@ -4,6 +4,7 @@ import pickle
 import logging
 import numpy as np
 from tqdm import tqdm
+from langchain_openai import ChatOpenAI
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
 logging.basicConfig(
@@ -11,6 +12,17 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+def load_model(model_name='gpt-4o', base_url=None, api_key=None, **kwargs):
+    if api_key is None and base_url is None:
+        model = ChatOpenAI(model_name=model_name, **kwargs)
+    elif api_key is not None and base_url is None:
+        model = ChatOpenAI(model_name=model_name, api_key=api_key, **kwargs)
+    elif api_key is None and base_url is not None:
+        model = ChatOpenAI(model_name=model_name, base_url=base_url, **kwargs)
+    else:
+        model = model = ChatOpenAI(model_name=model_name, api_key=api_key, base_url=base_url, **kwargs)
+    return model
 
 def load_data(path):
     data = {'query': [], 'domain': [], 'static_or_dynamic': [], 'query_time': [],
