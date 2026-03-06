@@ -422,17 +422,19 @@ if __name__ == '__main__':
     label = np.array(data[field])
     interaction_id = np.array(data['interaction_id'])
     search_results = data['search_results']
+    answer = np.array(data['answer'])
     query_time = np.array(data['query_time'])
     sr_train = [search_results[ind] for ind in train_indices]
     sr_val = [search_results[ind] for ind in val_indices]
     sr_test = [search_results[ind] for ind in test_indices]
     
-    queries, fields, interaction_ids, results, query_times = [], [], [], [], []
+    queries, fields, interaction_ids, results, query_times, answers = [], [], [], [], [], []
     for indices in [train_indices, val_indices, test_indices]:
         queries.append(query[indices])
         fields.append(label[indices])
         interaction_ids.append(interaction_id[indices])
         query_times.append(query_time[indices])
+        answers.append(answer[indices])
     results.append(sr_train)
     results.append(sr_val)
     results.append(sr_test)
@@ -477,6 +479,7 @@ if __name__ == '__main__':
         np.save('artifacts/test_queries.npy', queries[2])
         np.save('artifacts/test_interaction_id.npy', interaction_ids[2])
         np.save('artifacts/test_query_time.npy', query_times[2])
+        np.save('artifacts/test_answers.npy', answers[2])
         with open('artifacts/test_search_results.pkl', 'wb') as f:
             pickle.dump(results[2], f)
 

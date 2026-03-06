@@ -1,7 +1,7 @@
 import os
 import torch
 import pickle
-from prompts.no_shot_without_kg import BASE_PROMPT
+from prompts.no_shot_without_kg import *
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
@@ -49,10 +49,25 @@ class RagModel:
     
     def initialize_models(self, chat_model):
         SYSTEM_PROMPT = 'You are a helpful assistant'
-        self.domain2template = ChatPromptTemplate(
-            [("system", SYSTEM_PROMPT), ("user", BASE_PROMPT)]
-        )
-        self.rag_chain = self.format_messages_without_kg | chat_model | StrOutputParser | self.get_final_answer_content
+        
+        self.domain2template = {
+            "open": ChatPromptTemplate.from_messages(
+                [("system", SYSTEM_PROMPT), ("user", OPEN_PROMPT)],
+            ),
+            "movie": ChatPromptTemplate.from_messages(
+                [("system", SYSTEM_PROMPT), ("user", MOVIE_PROMPT)],
+            ),
+            "music": ChatPromptTemplate.from_messages(
+                [("system", SYSTEM_PROMPT), ("user", MUSIC_PROMPT)],
+            ),
+            "sports": ChatPromptTemplate.from_messages(
+                [("system", SYSTEM_PROMPT), ("user", SPORTS_PROMPT)],
+            ),
+            "finance": ChatPromptTemplate.from_messages(
+                [("system", SYSTEM_PROMPT), ("user", FINANCE_PROMPT)],
+            )
+        }
+        self.rag_chain = self.format_messages_without_kg | chat_model | StrOutputParser() | self.get_final_answer_content
     
     def get_final_answer_content(self, text):
         marker = "## Final Answer"
@@ -60,7 +75,7 @@ class RagModel:
         if marker_index == -1:
             return "I don't know"
         start_index = marker_index + len(marker)
-        answer = text[start_index:].strip()
+        answer = text[start_index:].strip().lower()
         return answer
     
     def get_references(self, retrival_results):
@@ -86,7 +101,9 @@ class RagModel:
             query=query,
             query_time=query_time,
             domain=domain,
-            references=references
+            references=references,
+            # domain_hint=self.domain_hints[domain],
+            # invalid_question_examples=self.invalid_question_examples[domain]
         )
         return messages
     
@@ -135,10 +152,77 @@ class RagModel:
             ]
         )
         
-        inputs = [{'query': query, 'query_time': query_time, 'retrieval_results': retrival_result, 'domain': domain} 
+        inputs = [{'query': query, 'query_time': query_time, 'retrival_results': retrival_result, 'domain': domain} 
                   for query, query_time, retrival_result, domain 
                   in zip(queries, query_times, batch_retrival_results, domains)]
         responses = self.rag_chain.batch(inputs)
         return responses
 
 #%%
+'''
+["I don't know",
+ 'Four films (with a prequel set to release soon).',
+ "I don't know",
+ "I don't know.",
+ '$34.4825',
+ 'Justin Bieber is older.',
+ 'Mt. Mayon',
+ 'Patrick Stump',
+ '$245 billion',
+ '$109.71',
+ 'Frenkie de Jong',
+ '0',
+ "I don't know",
+ "I don't know.",
+ "I don't know.",
+ "I don't know",
+ "I don't know",
+ "I don't know.",
+ '"I don\'t know"',
+ 'No.',
+ "I don't know",
+ 'Searching for Sugar Man',
+ "I don't know.",
+ 'Yes.',
+ "Robert Smith, Simon Gallup, Roger O'Donnell, Laurence Tolhurst",
+ 'Coca-Cola',
+ "I don't know.",
+ '0.00',
+ "I don't know",
+ 'Geno Smith',
+ 'Aly Raisman',
+ "I don't know"]
+
+["i don't know",
+ '4',
+ "i don't know",
+ "i don't know",
+ '$34.4825',
+ 'justin bieber',
+ 'mt. mayon',
+ 'patrick stump',
+ "i don't know",
+ '$109.71',
+ 'frenkie de jong',
+ "i don't know",
+ "i don't know",
+ "i don't know",
+ "i don't know",
+ 'invalid question',
+ "i don't know",
+ "i don't know",
+ "i don't know",
+ "i don't know",
+ "i don't know",
+ 'searching for sugar man',
+ "i don't know",
+ 'yes.',
+ "robert smith, simon gallup, roger o'donnell, laurence tolhurst",
+ 'coca-cola',
+ "i don't know",
+ '0.00',
+ "i don't know",
+ "i don't know",
+ 'aly raisman',
+ "i don't know"]
+'''

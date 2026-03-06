@@ -26,7 +26,7 @@ def load_model(model_name='gpt-4o', base_url=None, api_key=None, **kwargs):
 
 def load_data(path):
     data = {'query': [], 'domain': [], 'static_or_dynamic': [], 'query_time': [],
-            'interaction_id': [], 'search_results': []}
+            'interaction_id': [], 'search_results': [], 'answer': []}
     file_paths = os.listdir(path)
     for i, file_path in enumerate(file_paths):
         with open(f'{path}/{file_path}', 'r') as f:
