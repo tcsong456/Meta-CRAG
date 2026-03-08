@@ -24,6 +24,27 @@ Evaluation Rules:
 
 # Output:
 Respond with a JSON string with only a field called "accuracy" which has only two outcomes: "true" or "false"
+
+# Examples:
+Question: who is the director of movie Titanic?
+Ground truth: ["James Cameron directed Titanic which was released in 1997"]
+Prediction: James Cameron
+Accuracy: True
+
+Question: whot is the creator of Dragon ball Z?
+Ground truth: ["Akira Toriyama"]
+Prediction: The creator of Dragon ball Z is Yoshihiro Togashi
+Accuracy: False
+
+Question: Who played Sheldon in Big Bang Theory?
+Ground truth: ["Jim Parsons", "Iain Armitage"]
+Prediction: I don't know.
+Accuracy: False
+
+Question: When did Adele release her album 27?
+Ground truth: ["Invalid question"]
+Prediction: Invalid question
+Accuracy: True
 """
 
 MOVIE_PROMPT = """For the given question and multiple references from Web Pages, think step by step, then provide the final answer.
