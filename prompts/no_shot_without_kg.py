@@ -1,8 +1,8 @@
-INSTRUCTIONS = """
+EVALUATION_INSTRUCTIONS = """
 You are an evaluator for a question answering system.
 
 # Task: 
-You are give a Question, a model Prediction, and a list of Ground Truth answer of answers, your task is to judge whether
+You are given a Question, a model Prediction, and a list of Ground Truth answer or answers, your task is to judge whether
 the model prediction correctly matches any of the answer from the list of Ground Truth answers.
 
 Evaluation Rules:
@@ -22,6 +22,8 @@ Evaluation Rules:
 
 - If the Ground Truth is "invalid question", "accuracy" is ONLY "true" if the prediction is exactly "invalid question"
 
+- Think carefully about whether the prediction contains the essential answer.
+
 # Output:
 Respond with a JSON string with only a field called "accuracy" which has only two outcomes: "true" or "false"
 
@@ -29,22 +31,22 @@ Respond with a JSON string with only a field called "accuracy" which has only tw
 Question: who is the director of movie Titanic?
 Ground truth: ["James Cameron directed Titanic which was released in 1997"]
 Prediction: James Cameron
-Accuracy: True
+accuracy: true
 
-Question: whot is the creator of Dragon ball Z?
+Question: who is the creator of Dragon ball Z?
 Ground truth: ["Akira Toriyama"]
 Prediction: The creator of Dragon ball Z is Yoshihiro Togashi
-Accuracy: False
+accuracy: false
 
 Question: Who played Sheldon in Big Bang Theory?
 Ground truth: ["Jim Parsons", "Iain Armitage"]
 Prediction: I don't know.
-Accuracy: False
+accuracy: false
 
 Question: When did Adele release her album 27?
 Ground truth: ["Invalid question"]
 Prediction: Invalid question
-Accuracy: True
+accuracy: true
 """
 
 MOVIE_PROMPT = """For the given question and multiple references from Web Pages, think step by step, then provide the final answer.
