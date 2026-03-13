@@ -7,8 +7,8 @@ from rank_bm25 import BM25Okapi
 from pydantic import BaseModel
 
 class MovieKG:
-    def __init__(self, top_n):
-        KG_BASE_DIRECTORY = os.getenv("KG_BASE_DIRECTORY", "cragkg")
+    def __init__(self, top_n=10):
+        KG_BASE_DIRECTORY = os.getenv("KG_BASE_DIRECTORY", "mock_api/cragkg")
         
         year_db_path = os.path.join(KG_BASE_DIRECTORY, "movie", "year_db.json")
         with open(year_db_path) as f:
