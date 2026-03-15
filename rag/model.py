@@ -102,8 +102,6 @@ class RagModel:
             query_time=query_time,
             domain=domain,
             references=references,
-            # domain_hint=self.domain_hints[domain],
-            # invalid_question_examples=self.invalid_question_examples[domain]
         )
         return messages
     
