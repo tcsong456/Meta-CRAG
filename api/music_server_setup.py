@@ -3,7 +3,7 @@ import pickle
 import string
 import pandas as pd
 from utils import logger
-from .fast_bm25 import BM25
+from mock_api.cragapi.fast_bm25 import BM25
 from typing import Optional
 from fastapi import APIRouter
 from pydantic import BaseModel
