@@ -37,7 +37,6 @@ class NBAKG:
     def __init__(self):
         self.nba_kg_file = os.path.join(KG_BASE_DIRECTORY, "sports", 'nba.sqlite')
         logger.info(f"Reading NBA KG from: {self.nba_kg_file}")
-        # self.conn = sql.connect(nba_kg_file)
 
     def get_time_cond(self, date_str):
         parts = date_str.split('-')
