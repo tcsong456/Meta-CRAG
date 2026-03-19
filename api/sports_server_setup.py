@@ -35,9 +35,9 @@ class SoccerKG:
 
 class NBAKG:
     def __init__(self):
-        nba_kg_file = os.path.join(KG_BASE_DIRECTORY, "sports", 'nba.sqlite')
-        logger.info(f"Reading NBA KG from: {nba_kg_file}")
-        self.conn = sql.connect(nba_kg_file)
+        self.nba_kg_file = os.path.join(KG_BASE_DIRECTORY, "sports", 'nba.sqlite')
+        logger.info(f"Reading NBA KG from: {self.nba_kg_file}")
+        # self.conn = sql.connect(nba_kg_file)
 
     def get_time_cond(self, date_str):
         parts = date_str.split('-')
@@ -53,22 +53,32 @@ class NBAKG:
     def team_in_game_cond(self, basketball_team_name):
         return f"(team_name_home = '{basketball_team_name}' or team_name_away = '{basketball_team_name}')"
 
+    def get_conn(self):
+        return sql.connect(self.nba_kg_file)
+
     def get_games_on_date(self, date_str, basketball_team_name=None):
+        time_cond = self.get_time_cond(date_str)
+    
         if basketball_team_name is not None:
             team_cond = self.team_in_game_cond(basketball_team_name)
-            time_cond = self.get_time_cond(date_str)
-            df_game_by_team = pd.read_sql(f"select * from game where {team_cond} and {time_cond}", self.conn)
-            if len(df_game_by_team) > 0:
-                return df_game_by_team.to_json(date_format='iso')
+            query = f"select * from game where {team_cond} and {time_cond}"
         else:
-            time_cond = self.get_time_cond(date_str)
-            df_game_by_team = pd.read_sql(f"select * from game where {time_cond}", self.conn)
-            if len(df_game_by_team) > 0:
-                return df_game_by_team.to_json(date_format='iso')
+            query = f"select * from game where {time_cond}"
+    
+        conn = self.get_conn()
+        try:
+            df_game_by_team = pd.read_sql(query, conn)
+        finally:
+            conn.close()
+    
+        if len(df_game_by_team) > 0:
+            return df_game_by_team.to_json(date_format='iso')
+        return None
 
     def get_play_by_play_data_by_game_ids(self, game_ids):
         game_ids_str = ', '.join(f"'{game_id}'" for game_id in game_ids)
-        df_play_by_play_by_gameids = pd.read_sql(f"select * from play_by_play where game_id in ({game_ids_str})", self.conn)
+        conn = self.get_conn()
+        df_play_by_play_by_gameids = pd.read_sql(f"select * from play_by_play where game_id in ({game_ids_str})", conn)
         if len(df_play_by_play_by_gameids) > 0:
             return df_play_by_play_by_gameids.to_json(date_format='iso')   
 
@@ -76,20 +86,24 @@ router = APIRouter()
 soccer_api = SoccerKG()
 nba_api = NBAKG()
 
-class GamesOnDate(BaseModel):
+class SoccerGamesOnDate(BaseModel):
     date_str: str
     soccer_team_name: Optional[str] = None
+    
+class BasketballGamesOnDate(BaseModel):
+    date_str: str
+    basketball_team_name: Optional[str] = None
 
 class GameIds(BaseModel):
-    game_ids: str
+    game_ids: list
 
-@router.post('/sports/get_games_on_date')
-def search_soccer_gaames(req: GamesOnDate):
+@router.post('/sports/get_soccer_games_on_date')
+def search_soccer_gaames(req: SoccerGamesOnDate):
     result = soccer_api.get_games_on_date(req.date_str, req.soccer_team_name)
     return {'result': result}
 
-@router.post('/sports/get_games_on_date')
-def search_nba_gaames(req: GamesOnDate):
+@router.post('/sports/get_nba_games_on_date')
+def search_nba_gaames(req: BasketballGamesOnDate):
     result = nba_api.get_games_on_date(req.date_str, req.basketball_team_name)
     return {'result': result}
 
