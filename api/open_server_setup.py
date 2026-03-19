@@ -12,7 +12,7 @@ class OpenKG(object):
     def __init__(self):
         self.kg = {}
         for i in range(2):
-            open_kg_file = os.path.join('mock_api', "open", "kg."+str(i)+".jsonl.bz2")
+            open_kg_file = os.path.join('mock_api/cragkg', "open", "kg."+str(i)+".jsonl.bz2")
             logger.info(f"Reading open_kg file from: {open_kg_file}")
             with bz2.open(open_kg_file, "rt", encoding='utf8') as f:
                 l = f.readline()
@@ -67,7 +67,7 @@ def search_entity(req: QueryRequest):
     result = open_api.search_entity_by_name(req.query)
     return {'result': result}
 
-@router.apost('/open/get_entity')
+@router.post('/open/get_entity')
 def get_entity(req: EntityRequest):
     result = open_api.get_entity(req.entity)
     return {'result': result}

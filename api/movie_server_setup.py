@@ -44,7 +44,7 @@ class MovieKG:
         return " ".join(x.lower().replace("_", " ").translate(str.maketrans('', '', string.punctuation)).split())
     
     def _search_entity_by_name(self, query, bm25, corpus, map_db):
-        n = self._top_n
+        n = self.top_n
         query = self._normalize(query)
         scores = bm25.get_scores(query.split())
         top_idx = np.argsort(scores)[::-1][:n]
@@ -104,7 +104,7 @@ def search_movie_info(req: MovieRequest):
 
 @router.post('/movie/get_year_info')
 def search_year_info(req: YearRequest):
-    result = movie_api.get_movie_info(req.year)
+    result = movie_api.get_year_info(req.year)
     return {'result': result}
 
 @router.post('/movie/get_movie_info_by_id')
@@ -113,8 +113,8 @@ def search_movie_info_by_id(req: MovieIdRequest):
     return {'result': result}
 
 @router.post('/movie/get_person_info_by_id')
-def search_person_info_by_id(req: MovieIdRequest):
-    result = movie_api.get_movie_info_by_id(req.person_id)
+def search_person_info_by_id(req: PersonIdRequest):
+    result = movie_api.get_person_info_by_id(req.person_id)
     return {'result': result}
 
 
