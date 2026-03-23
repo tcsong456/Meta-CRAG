@@ -149,7 +149,6 @@ class SportsTool:
     def get_nba_games_by_date(self, date, basketball_team_name):
         return self.api.nba_games_by_date(date, basketball_team_name)['result']
     
-    
     def get_nba_play_by_play(self, game_ids):
         return self.api.nba_play_by_play(game_ids)['reult']
 
